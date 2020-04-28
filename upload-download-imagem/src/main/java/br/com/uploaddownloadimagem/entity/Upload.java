@@ -1,5 +1,6 @@
 package br.com.uploaddownloadimagem.entity;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 
 import javax.persistence.Column;
@@ -8,6 +9,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+
+import org.springframework.web.multipart.MultipartFile;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -84,6 +87,17 @@ public class Upload {
 
 	public void setBytes(byte[] bytes) {
 		this.bytes = bytes;
+	}
+
+	public static Upload convertMultiPartFile(MultipartFile file) throws IOException {
+		Upload upload = new Upload();
+		upload.setBytes(file.getBytes());
+		upload.setContentType(file.getContentType());
+		upload.setDataCadastro(LocalDateTime.now());
+		upload.setNome(file.getOriginalFilename());
+		upload.setSize(file.getSize());
+		
+		return upload;
 	}
 
 		

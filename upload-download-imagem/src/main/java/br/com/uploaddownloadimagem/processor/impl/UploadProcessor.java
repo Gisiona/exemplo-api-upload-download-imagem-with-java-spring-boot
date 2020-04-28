@@ -1,7 +1,6 @@
 package br.com.uploaddownloadimagem.processor.impl;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.Optional;
 
@@ -22,15 +21,8 @@ public class UploadProcessor implements IUploadProcessor{
 	
 	@Override
 	public UploadResponseDto uploadDocumento(MultipartFile file) throws Exception {
-		try {
-			Upload up = new Upload();
-			up.setBytes(file.getBytes());
-			up.setContentType(file.getContentType());
-			up.setDataCadastro(LocalDateTime.now());
-			up.setNome(file.getOriginalFilename());
-			up.setSize(file.getSize());
-			
-			Upload upload = uploadRepository.save(up);
+		try {			
+			Upload upload = uploadRepository.save(Upload.convertMultiPartFile(file));
 			
 			String image = Base64.getEncoder().encodeToString(upload.getBytes());
 			
@@ -52,21 +44,12 @@ public class UploadProcessor implements IUploadProcessor{
 		try {
 			Optional<Upload> upload = uploadRepository.findById(id);
 			
-			UploadResponseDto response = new UploadResponseDto();
-			
-			if(upload.isPresent()) {
-				String image = Base64.getEncoder().encodeToString(upload.get().getBytes());			
-				response.setContentType(upload.get().getContentType());
-				response.setDataCadastro(upload.get().getDataCadastro());
-				response.setId(upload.get().getId());
-				response.setNome(upload.get().getNome());
-				response.setBytes(image);
-				response.setSize(String.valueOf(upload.get().getSize()));
-			}			
+			UploadResponseDto response = UploadResponseDto.toUploadResponseDto(upload);
+					
 			return response;
 		} catch (Exception e) {
 			throw new Exception("Ocorreu um erro ao salvar imagem. Erro: " + e.getMessage());
 		}
 	}
-
+	
 }
